@@ -1,4 +1,4 @@
-// Current state
+// State variables
 let currentOperation = 'add'; // 'add', 'sub', 'mult', 'div'
 let currentDigits = 2;        // 1 to 6
 let num1 = 0;
@@ -7,14 +7,14 @@ let expectedAnswer = 0;
 let score = 0;
 let streak = 0;
 
-// Place Value Labels
+// Place Value Header Labels
 const PLACE_VALUES = ['O', 'T', 'H', 'Th', 'TTh', 'HTh', 'M'];
 
 function selectMode(op, digits) {
   currentOperation = op;
   currentDigits = digits;
 
-  // Highlight active button
+  // Highlight active button in selection grid
   document.querySelectorAll('.grid-btn').forEach(btn => btn.classList.remove('active'));
   event.currentTarget.classList.add('active');
 
@@ -35,11 +35,11 @@ function generateProblem() {
   num2 = getRandomNumber(currentDigits);
 
   if (currentOperation === 'sub' && num2 > num1) {
-    // Swap so upper number is larger for subtraction
+    // Keep upper number larger for non-negative subtraction
     [num1, num2] = [num2, num1];
   } else if (currentOperation === 'div') {
-    // Ensure clean division
-    num2 = Math.floor(Math.random() * 9) + 1; // divisor 1-9
+    // Generate clean division problems
+    num2 = Math.floor(Math.random() * 9) + 1;
     let multiplier = getRandomNumber(Math.max(1, currentDigits - 1));
     num1 = num2 * multiplier;
   }
@@ -67,7 +67,7 @@ function renderBoard() {
 
   const totalCols = Math.max(str1.length, str2.length, strAns.length);
 
-  // 1. PLACE VALUE HEADERS ROW
+  // 1. Place Value Header Row
   const headerRow = document.createElement('div');
   headerRow.className = 'column-row';
   for (let i = totalCols - 1; i >= 0; i--) {
@@ -78,7 +78,7 @@ function renderBoard() {
   }
   board.appendChild(headerRow);
 
-  // 2. CARRY / REGROUPING DASHED BOXES ROW
+  // 2. Carry/Regrouping Dashed Input Boxes Row
   const carryRow = document.createElement('div');
   carryRow.className = 'column-row';
   for (let i = 0; i < totalCols; i++) {
@@ -93,7 +93,7 @@ function renderBoard() {
   }
   board.appendChild(carryRow);
 
-  // 3. FIRST NUMBER ROW
+  // 3. First Number Row
   const row1 = document.createElement('div');
   row1.className = 'column-row';
   const paddedStr1 = str1.padStart(totalCols, ' ');
@@ -105,7 +105,7 @@ function renderBoard() {
   }
   board.appendChild(row1);
 
-  // 4. SECOND NUMBER ROW (WITH OPERATOR)
+  // 4. Second Number Row with Operator Symbol
   const row2 = document.createElement('div');
   row2.className = 'column-row';
   
@@ -124,12 +124,12 @@ function renderBoard() {
   }
   board.appendChild(row2);
 
-  // 5. LINE DIVIDER
+  // 5. Solid Line Divider
   const line = document.createElement('div');
   line.className = 'line-divider';
   board.appendChild(line);
 
-  // 6. DIGIT INPUT BOXES ROW FOR ANSWER
+  // 6. Answer Digit Input Boxes Row
   const answerRow = document.createElement('div');
   answerRow.className = 'column-row';
   for (let i = 0; i < strAns.length; i++) {
@@ -140,29 +140,29 @@ function renderBoard() {
     input.type = 'number';
     input.className = 'digit-input';
     input.dataset.index = i;
-    input.onkeyup = (e) => handleDigitAutoTab(e, i, strAns.length);
+    input.onkeyup = (e) => handleDigitAutoTab(e, i);
 
     cell.appendChild(input);
     answerRow.appendChild(cell);
   }
   board.appendChild(answerRow);
 
-  // Focus first input box
+  // Auto-focus first digit box
   setTimeout(() => {
     const firstInput = answerRow.querySelector('.digit-input');
     if (firstInput) firstInput.focus();
   }, 100);
 }
 
-function handleDigitAutoTab(e, index, totalDigits) {
+function handleDigitAutoTab(e, index) {
   if (e.key === 'Enter') {
     checkAnswer();
     return;
   }
-  // Auto advance cursor to left input box as user types from right to left
+  // Auto-tab cursor leftward as digits are entered
   if (e.target.value.length === 1 && index > 0) {
-    const prevInput = document.querySelectorAll('.digit-input')[index - 1];
-    if (prevInput) prevInput.focus();
+    const inputs = document.querySelectorAll('.digit-input');
+    if (inputs[index - 1]) inputs[index - 1].focus();
   }
 }
 
@@ -191,9 +191,8 @@ function checkAnswer() {
   document.getElementById('streak').innerText = streak;
 }
 
-// Initial setup
+// Initial initialization
 window.onload = () => {
-  // Activate default mode button (Addition 2-Digit)
   const defaultBtn = document.querySelectorAll('.grid-btn.btn-add')[1];
   if (defaultBtn) defaultBtn.classList.add('active');
   generateProblem();
