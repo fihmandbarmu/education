@@ -3,29 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SuperSpark - Math & Reading Quest</title>
+  <title>SuperSpark - Math Quest</title>
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="app-container">
     <header class="main-header">
-      <div class="logo-badge">🚀 SuperSpark</div>
-      <h1>Math & Reading Quest</h1>
-      <p>Master Math Tables, Big Addition & Epic Reading Quests!</p>
+      <div class="logo-badge">⚡ SuperSpark</div>
+      <h1>Math Arena</h1>
+      <p>Master Times Tables & Big Addition Challenges!</p>
     </header>
 
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('multiplication', event)">⚡ Times Tables (1-12)</button>
+      <button class="tab-btn active" onclick="switchTab('multiplication', event)">✖️ Times Tables (1-12)</button>
       <button class="tab-btn" onclick="switchTab('addition', event)">➕ Big Addition (3-6 Digits)</button>
-      <button class="tab-btn" onclick="switchTab('reading', event)">📚 Reading & Quizzes</button>
     </nav>
 
     <main class="content-area">
       <!-- MULTIPLICATION TAB -->
       <section id="multiplication" class="tab-content active">
         <div class="card bright-purple">
-          <h2>⚡ Times Tables Challenge</h2>
+          <h2>⚡ Times Tables Arena</h2>
           <div class="selector-group">
             <label for="table-select">Choose Table:</label>
             <select id="table-select" onchange="startMultiplication()">
@@ -49,7 +48,7 @@
             <div class="question" id="mult-question">7 × 8 = ?</div>
             <div class="input-group">
               <input type="number" id="mult-answer" placeholder="?" onkeyup="checkEnter(event, checkMultiplication)" />
-              <button class="btn-spark" onclick="checkMultiplication()">Check!</button>
+              <button class="btn-spark" onclick="checkMultiplication()">Check Answer</button>
             </div>
             <div class="feedback" id="mult-feedback"></div>
           </div>
@@ -66,7 +65,7 @@
         <div class="card bright-cyan">
           <h2>➕ Multi-Digit Addition Arena</h2>
           <div class="selector-group">
-            <label for="digit-select">Difficulty Digits:</label>
+            <label for="digit-select">Select Digits:</label>
             <select id="digit-select" onchange="startAddition()">
               <option value="3">3-Digit Addition</option>
               <option value="4">4-Digit Addition</option>
@@ -83,7 +82,7 @@
             </div>
             <div class="input-group">
               <input type="number" id="add-answer" placeholder="Sum" onkeyup="checkEnter(event, checkAddition)" />
-              <button class="btn-spark" onclick="checkAddition()">Check!</button>
+              <button class="btn-spark" onclick="checkAddition()">Check Answer</button>
             </div>
             <div class="feedback" id="add-feedback"></div>
           </div>
@@ -92,42 +91,6 @@
             <div class="stat-box">⭐ Score: <strong id="add-score">0</strong></div>
             <div class="stat-box">🔥 Streak: <strong id="add-streak">0</strong></div>
           </div>
-        </div>
-      </section>
-
-      <!-- READING TAB -->
-      <section id="reading" class="tab-content">
-        <div class="card bright-orange">
-          <h2>📖 Reading & Comprehension Quests</h2>
-          <p class="subtitle">Select your age group to unlock epic stories (270+ to 1,000+ words) followed by comprehension quiz questions!</p>
-
-          <div class="category-buttons">
-            <button class="cat-btn active" onclick="loadStory('y1-6', event)">🎈 Year 1–6 (320 Words)</button>
-            <button class="cat-btn" onclick="loadStory('y7-12', event)">🚀 Year 7–12 (510 Words)</button>
-            <button class="cat-btn" onclick="loadStory('16-35', event)">💡 Ages 16–35 (780 Words)</button>
-            <button class="cat-btn" onclick="loadStory('36plus', event)">🏛️ Ages 36+ (1,050 Words)</button>
-          </div>
-
-          <article class="reader-container">
-            <div class="reader-header">
-              <h3 id="story-title">Story Title</h3>
-              <span id="story-meta" class="meta-tag">0 words</span>
-            </div>
-            <div id="story-body" class="story-body">
-              <!-- Content dynamically loaded -->
-            </div>
-
-            <!-- COMPREHENSION QUIZ SECTION -->
-            <div class="quiz-section">
-              <h3>🎯 Comprehension Quiz</h3>
-              <p class="quiz-subtitle">Answer the questions below based on the story above!</p>
-              <div id="quiz-container">
-                <!-- Quiz questions dynamic loading -->
-              </div>
-              <button class="btn-spark btn-quiz" onclick="checkQuiz()">Submit Answers</button>
-              <div id="quiz-result" class="quiz-result"></div>
-            </div>
-          </article>
         </div>
       </section>
     </main>
