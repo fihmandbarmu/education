@@ -3,96 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SuperSpark - Math Quest</title>
+  <title>Bright Maths Start</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="app-container">
     <header class="main-header">
-      <div class="logo-badge">⚡ SuperSpark</div>
-      <h1>Math Arena</h1>
-      <p>Master Times Tables & Big Addition Challenges!</p>
+      <div class="logo-badge">⭐ Bright Maths Start</div>
+      <p class="tagline">Interactive Column Practice (1 to 6 Digits)</p>
     </header>
 
-    <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('multiplication', event)">✖️ Times Tables (1-12)</button>
-      <button class="tab-btn" onclick="switchTab('addition', event)">➕ Big Addition (3-6 Digits)</button>
-    </nav>
+    <!-- DIGIT & OPERATION SELECTION GRID -->
+    <div class="button-grid">
+      <!-- Addition Row (Red) -->
+      <button class="grid-btn btn-add" onclick="selectMode('add', 1)">+ 1-Digit</button>
+      <button class="grid-btn btn-add" onclick="selectMode('add', 2)">+ 2-Digit</button>
+      <button class="grid-btn btn-add" onclick="selectMode('add', 3)">+ 3-Digit</button>
+      <button class="grid-btn btn-add" onclick="selectMode('add', 4)">+ 4-Digit</button>
+      <button class="grid-btn btn-add" onclick="selectMode('add', 5)">+ 5-Digit</button>
+      <button class="grid-btn btn-add" onclick="selectMode('add', 6)">+ 6-Digit</button>
 
-    <main class="content-area">
-      <!-- MULTIPLICATION TAB -->
-      <section id="multiplication" class="tab-content active">
-        <div class="card bright-purple">
-          <h2>⚡ Times Tables Arena</h2>
-          <div class="selector-group">
-            <label for="table-select">Choose Table:</label>
-            <select id="table-select" onchange="startMultiplication()">
-              <option value="all">🌟 All Tables Mixed (1 - 12)</option>
-              <option value="1">1 Times Table</option>
-              <option value="2">2 Times Table</option>
-              <option value="3">3 Times Table</option>
-              <option value="4">4 Times Table</option>
-              <option value="5">5 Times Table</option>
-              <option value="6">6 Times Table</option>
-              <option value="7">7 Times Table</option>
-              <option value="8">8 Times Table</option>
-              <option value="9">9 Times Table</option>
-              <option value="10">10 Times Table</option>
-              <option value="11">11 Times Table</option>
-              <option value="12">12 Times Table</option>
-            </select>
-          </div>
+      <!-- Subtraction Row (Orange) -->
+      <button class="grid-btn btn-sub" onclick="selectMode('sub', 1)">- 1-Digit</button>
+      <button class="grid-btn btn-sub" onclick="selectMode('sub', 2)">- 2-Digit</button>
+      <button class="grid-btn btn-sub" onclick="selectMode('sub', 3)">- 3-Digit</button>
+      <button class="grid-btn btn-sub" onclick="selectMode('sub', 4)">- 4-Digit</button>
+      <button class="grid-btn btn-sub" onclick="selectMode('sub', 5)">- 5-Digit</button>
+      <button class="grid-btn btn-sub" onclick="selectMode('sub', 6)">- 6-Digit</button>
 
-          <div class="problem-box">
-            <div class="question" id="mult-question">7 × 8 = ?</div>
-            <div class="input-group">
-              <input type="number" id="mult-answer" placeholder="?" onkeyup="checkEnter(event, checkMultiplication)" />
-              <button class="btn-spark" onclick="checkMultiplication()">Check Answer</button>
-            </div>
-            <div class="feedback" id="mult-feedback"></div>
-          </div>
+      <!-- Multiplication Row (Blue) -->
+      <button class="grid-btn btn-mult" onclick="selectMode('mult', 1)">× 1-Digit</button>
+      <button class="grid-btn btn-mult" onclick="selectMode('mult', 2)">× 2-Digit</button>
+      <button class="grid-btn btn-mult" onclick="selectMode('mult', 3)">× 3-Digit</button>
+      <button class="grid-btn btn-mult" onclick="selectMode('mult', 4)">× 4-Digit</button>
+      <button class="grid-btn btn-mult" onclick="selectMode('mult', 5)">× 5-Digit</button>
+      <button class="grid-btn btn-mult" onclick="selectMode('mult', 6)">× 6-Digit</button>
 
-          <div class="score-board">
-            <div class="stat-box">⭐ Score: <strong id="mult-score">0</strong></div>
-            <div class="stat-box">🔥 Streak: <strong id="mult-streak">0</strong></div>
-          </div>
-        </div>
-      </section>
+      <!-- Division Row (Green) -->
+      <button class="grid-btn btn-div" onclick="selectMode('div', 1)">÷ 1-Digit</button>
+      <button class="grid-btn btn-div" onclick="selectMode('div', 2)">÷ 2-Digit</button>
+      <button class="grid-btn btn-div" onclick="selectMode('div', 3)">÷ 3-Digit</button>
+      <button class="grid-btn btn-div" onclick="selectMode('div', 4)">÷ 4-Digit</button>
+      <button class="grid-btn btn-div" onclick="selectMode('div', 5)">÷ 5-Digit</button>
+      <button class="grid-btn btn-div" onclick="selectMode('div', 6)">÷ 6-Digit</button>
+    </div>
 
-      <!-- ADDITION TAB -->
-      <section id="addition" class="tab-content">
-        <div class="card bright-cyan">
-          <h2>➕ Multi-Digit Addition Arena</h2>
-          <div class="selector-group">
-            <label for="digit-select">Select Digits:</label>
-            <select id="digit-select" onchange="startAddition()">
-              <option value="3">3-Digit Addition</option>
-              <option value="4">4-Digit Addition</option>
-              <option value="5">5-Digit Addition</option>
-              <option value="6">6-Digit Addition</option>
-            </select>
-          </div>
+    <!-- COLUMN MATH DISPLAY BOARD -->
+    <main class="board-card">
+      <div id="column-board" class="column-board">
+        <!-- Dynamic Place Value Headers, Carry Boxes, Problem & Digit Input Boxes -->
+      </div>
 
-          <div class="problem-box">
-            <div class="vertical-addition" id="add-question">
-              <div id="num1">000</div>
-              <div id="num2">+ 000</div>
-              <hr />
-            </div>
-            <div class="input-group">
-              <input type="number" id="add-answer" placeholder="Sum" onkeyup="checkEnter(event, checkAddition)" />
-              <button class="btn-spark" onclick="checkAddition()">Check Answer</button>
-            </div>
-            <div class="feedback" id="add-feedback"></div>
-          </div>
+      <div class="action-bar">
+        <button class="btn-check" onclick="checkAnswer()">Check Answer</button>
+        <button class="btn-next" onclick="generateProblem()">Next Problem</button>
+      </div>
 
-          <div class="score-board">
-            <div class="stat-box">⭐ Score: <strong id="add-score">0</strong></div>
-            <div class="stat-box">🔥 Streak: <strong id="add-streak">0</strong></div>
-          </div>
-        </div>
-      </section>
+      <div class="feedback" id="feedback"></div>
+
+      <div class="score-board">
+        <div class="stat-box">⭐ Score: <strong id="score">0</strong></div>
+        <div class="stat-box">🔥 Streak: <strong id="streak">0</strong></div>
+      </div>
     </main>
   </div>
 
