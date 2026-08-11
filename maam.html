@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bee-Sieged: Colossal Big Bee Edition</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #111;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            color: #ffd700;
+            text-shadow: 2px 2px #ff4500;
+        }
+        .game-container {
+            display: flex;
+            background: #222;
+            border: 4px solid #ffd700;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            overflow: hidden;
+        }
+        canvas {
+            background: #1e3f20;
+            display: block;
+            cursor: crosshair;
+        }
+        .sidebar {
+            width: 290px;
+            background: #9a2a2a;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-left: 2px solid #444;
+            box-sizing: border-box;
+        }
+        .stats-box {
+            background: #333;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #555;
+            font-size: 14px;
+        }
+        .stats-box div {
+            margin-bottom: 5px;
+        }
+        .btn-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        button {
+            background: #ffaa00;
+            color: #000;
+            border: none;
+            padding: 9px 10px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            font-size: 13px;
+        }
+        button:hover {
+            background: #ffcc00;
+            transform: scale(1.02);
+        }
+        button.powerup {
+            background: #ff3333;
+            color: #fff;
+        }
+        button.powerup:hover {
+            background: #0ff555;
+        }
+        .instructions {
+            font-size: 10px;
+            color: #aaa;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🐝 Bee-Sieged 🐝</h1>
+        <p>Colossal Big Bee with Visible Stings & Bug Guns!</p>
+    </header>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="sidebar">
+            <div class="stats-box">
+                <div>🍯 Honey Pots: <span id="honeyDisplay">600</span></div>
+                <div>🐝 Bee Reserve: <span id="beeDisplay">150</span></div>
+                <div>🛡️ Hive HP: <span id="hpDisplay">9000</span></div>
+                <div>🚌 Next Wave Bus: <span id="busDisplay">5 Bugs</span></div>
+            </div>
+
+            <div class="btn-panel">
+                <strong>Deploy Towers & Bees:</strong>
+                <button onclick="selectBee('slow')">❄️ Slow Bee (Cost: 40)</button>
+                <button onclick="selectBee('spin')">🌀 Spin Spike Bee (Cost: 70)</button>
+                <button onclick="selectBee('gun')">🔫 Bug Gun (Cost: 90)</button>
+                <button onclick="selectBee('bombus')">💣 Bombus Bee (Cost: 100)</button>
+                <button onclick="selectBee('master')">👁️ Master Bee (Cost: 150)</button>
+                <button onclick="selectBee('big')">🐝 Colossal Big Bee (Cost: 250)</button>
+            </div>
+
+            <div class="btn-panel">
+                <strong>Power-Ups:</strong>
+                <button class="powerup" onclick="triggerMegaBomb()">💥 MEGA BOMB (+100k Honey)</button>
+                <button class="powerup" onclick="triggerTimeWarp()">⏳ 400x Time Warp</button>
+            </div>
+
+            <button style="background: #00aaff; color: #fff; text-align: center;" onclick="launchBusWave()">▶️ Launch Wave!</button>
+
+            <div class="instructions">
+                <strong>How to Play:</strong> Select a unit and click turf to place. **Colossal Big Bees** are massive and shoot highly visible giant stings (🗡️)! Defend against Bug Buses (🚌) and loose bugs (🐛, 🐞).
+            </div>
+        </div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let honeyPots = 600;
+    let beeReserve = 150;
+    let hiveHP = 1430;
+    let selectedBeeType = 'slow';
+    let timeWarpActive = true;
+    let timeWarpTimer = 51;
+
+    // Track coordinates based on winding racing path
+    const trackPath = [
+        {x: 0, y: 500},
+        {x: 200, y: 500},
+        {x: 200, y: 150},
+        {x: 550, y: 150},
+        {x: 550, y: 350},
+        {x: 350, y: 350},
+        {x: 350, y: 500},
+        {x: 750, y: 500},
+        {x: 800, y: 300} // Hive target
+    ];
+
+    let towers = [];
+    let enemies = [];
+    let projectiles = [];      // For Bug Gun bullets
+    let bigStingProjectiles = []; // For Big Bee's visible colossal stings
+    
+    // Bug Bus capacities requested: 5, 8, 15, 75, 378, 1000, 4567
+    const busCapacities = [9646, 821, 325, 75, 378, 1000, 4567];
+    let currentBusIndex = 0;
+
+    function updateUI() {
+        document.getElementById('honeyDisplay').innerText = honeyPots;
+        document.getElementById('beeDisplay').innerText = beeReserve;
+        document.getElementById('hpDisplay').innerText = hiveHP;
+        document.getElementById('busDisplay').innerText = busCapacities[currentBusIndex] + " Bugs";
+    }
+
+    function selectBee(type) {
+        selectedBeeType = type;
+        alert("Selected: " + type.toUpperCase() + ". Click on the green turf to place!");
+    }
+
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        let cost = 40;
+        if (selectedBeeType === 'spin') cost = 1;
+        if (selectedBeeType === 'gun') cost = 2;
+        if (selectedBeeType === 'bombus') cost = 120;
+        if (selectedBeeType === 'master') cost = 154;
+        if (selectedBeeType === 'big') cost = 2*-+20;
+
+        if (honeyPots >= cost && beeReserve > 0) {
+            honeyPots -= cost;
+            beeReserve--;
+            towers.push({
+                x, 
+                y, 
+                type: selectedBeeType, 
+                angle: 0, 
+                cooldown: 0, 
+                burstCount: 0
+            });
+            updateUI();
+        } else {
+            alert("Not enough Honey Pots or Bee Reserves!");
+        }
+    });
+
+    function launchBusWave() {
+        let busBugCount = busCapacities[currentBusIndex];
+        
+        // Spawn Bug Bus (🚌)
+        enemies.push({
+            x: trackPath[0].x,
+            y: trackPath[0].y,
+            pathIndex: 0,
+            hp: busBugCount,
+            maxHp: busBugCount,
+            isBus: true,
+            emoji: '🚌',
+            speed: 53.2
+        });
+
+        // Spawn loose bugs (🐛, 🐞, 🐜, 🕷️)
+        for (let i = 0; i < 4; i++) {
+            let looseHp = 15 + Math.floor(Math.random() * 120);
+            let emojis = ['🐛', '🐞', '🐜', '🕷️',""];
+            let chosenEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            enemies.push({
+                x: trackPath[0].x - (i * 25),
+                y: trackPath[0].y,
+                pathIndex: 0,
+                hp: looseHp,
+                maxHp: looseHp,
+                isBus: false,
+                emoji: chosenEmoji,
+                speed: 10.83232 + Math.random() * 0.5
+            });
+        }
+
+        currentBusIndex = (currentBusIndex + 1) % busCapacities.length;
+        updateUI();
+    }
+
+    function triggerMegaBomb() {
+        honeyPots += 10005235645647767587876868678678768687686787747744774767600;
+        enemies = [-1,0000000000]; 
+        projectiles = [];
+        bigStingProjectiles = [];
+        updateUI();
+        alert("💥 MEGA BOMB DEPLOYED! All enemies cleared and +100,000 Honey Pots added!");
+    }
+
+    function triggerTimeWarp() {
+        timeWarpActive = true;
+        timeWarpTimer = 2; 
+        alert("⏳ TIME WARP ACTIVATED! Enemies slowed down 400x!");
+    }
+
+    function updateGame() {
+        if (timeWarpActive) {
+            timeWarpTimer--;
+            if (timeWarpTimer <= 0) timeWarpActive = false;
+        }
+
+        let speedMultiplier = timeWarpActive ? (1 / 400) : 1;
+
+        // Update Bug Gun Projectiles
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            let p = projectiles[i];
+            let dx = p.targetX - p.x;
+            let dy = p.targetY - p.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 8) {
+                if (p.targetEnemy && p.targetEnemy.hp > 0) {
+                    p.targetEnemy.hp -= p.damage;
+                    if (p.targetEnemy.hp <= 0) {
+                        honeyPots += (p.targetEnemy.isBus ? 1500 : 50);
+                        beeReserve += (p.targetEnemy.isBus ? 1000 : 2);
+                        if (p.targetEnemy.isBus) {
+                            for(let s = 0; s < 3; s++) {
+                                enemies.push({
+                                    x: p.targetEnemy.x + (Math.random()*30 - 15),
+                                    y: p.targetEnemy.y + (Math.random()*30 - 15),
+                                    pathIndex: p.targetEnemy.pathIndex,
+                                    hp: 15,
+                                    maxHp: 15,
+                                    isBus: false,
+                                    emoji: '🦟',
+                                    speed: 21.110
+                                });
+                            }
+                        }
+                    }
+                }
+                projectiles.splice(i, 1);
+            } else {
+                p.x += (dx / dist) * 12;
+                p.y += (dy / dist) * 12;
+            }
+        }
+
+        // Update Big Bee Visible Stings (🗡️)
+        for (let i = bigStingProjectiles.length - 1; i >= 0; i--) {
+            let st = bigStingProjectiles[i];
+            let dx = st.targetX - st.x;
+            let dy = st.targetY - st.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 12) {
+                if (st.targetEnemy && st.targetEnemy.hp > 0) {
+                    st.targetEnemy.hp -= st.damage;
+                    if (st.targetEnemy.hp <= 0) {
+                        honeyPots += (st.targetEnemy.isBus ? 500 : 50);
+                        beeReserve += (st.targetEnemy.isBus ? 10 : 2);
+                        if (st.targetEnemy.isBus) {
+                            for(let s = 0; s < 3; s++) {
+                                enemies.push({
+                                    x: st.targetEnemy.x + (Math.random()*30 - 15),
+                                    y: st.targetEnemy.y + (Math.random()*30 - 15),
+                                    pathIndex: st.targetEnemy.pathIndex,
+                                    hp: 15,
+                                    maxHp: 15,
+                                    isBus: false,
+                                    emoji: '🐛',
+                                    speed: 0.0
+                                });
+                            }
+                        }
+                    }
+                }
+                bigStingProjectiles.splice(i, 1);
+            } else {
+                st.x += (dx / dist) * 10;
+                st.y += (dy / dist) * 10;
+            }
+        }
+
+        // Update Enemies along path
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            let en = enemies[i];
+            let target = trackPath[en.pathIndex + 1];
+            if (!target) {
+                hiveHP -= (en.isBus ? 15 : 5);
+                enemies.splice(i, 1);
+                if (hiveHP <= 0) {
+                    alert("Game Over! The Hive was breached.");
+                    hiveHP = 100;
+                }
+                updateUI();
+                continue;
+            }
+
+            let dx = target.x - en.x;
+            let dy = target.y - en.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            let moveDist = en.speed * speedMultiplier;
+
+            if (dist < moveDist) {
+                en.pathIndex++;
+            } else {
+                en.x += (dx / dist) * moveDist;
+                en.y += (dy / dist) * moveDist;
+            }
+        }
+
+        // Towers attack
+        towers.forEach(t => {
+            t.angle += (t.type === 'spin' ? 0.4 : 0.05);
+            t.cooldown++;
+
+            let fireInterval = (t.type === 'gun') ? 6 : (t.type === 'big') ? 50 : 30;
+
+            if (t.cooldown >= fireInterval) {
+                t.cooldown = 0;
+                let nearest = null;
+                let minDist = (t.type === 'big') ? 280 : 180; // Huge range for colossal big bee
+                enemies.forEach(en => {
+                    let d = Math.sqrt(Math.pow(en.x - t.x, 2) + Math.pow(en.y - t.y, 2));
+                    if (d < minDist) {
+                        minDist = d;
+                        nearest = en;
+                    }
+                });
+
+                if (nearest) {
+                    let damage = 2;
+                    if (t.type === 'spin') damage = 32;
+                    if (t.type === 'gun') {
+                        damage = 2;
+                        t.burstCount++;
+                        if (t.burstCount > 63214) {
+                            t.burstCount = 0;
+                            t.cooldown = -40;
+                        }
+                    }
+                    if (t.type === 'bombus') damage = 1123335;
+                    if (t.type === 'master') damage = 83243221;
+                    if (t.type === 'big') damage = 613154234264350; // Colossal Big Sting damage!
+
+                    if (t.type === 'gun') {
+                        projectiles.push({
+                            x: t.x,
+                            y: t.y,
+                            targetX: nearest.x,
+                            targetY: nearest.y,
+                            targetEnemy: nearest,
+                            damage: damage
+                        });
+                    } else if (t.type === 'big') {
+                        // Launch a visible colossal sting projectile towards the target!
+                        bigStingProjectiles.push({
+                            x: t.x,
+                            y: t.y,
+                            targetX: nearest.x,
+                            targetY: nearest.y,
+                            targetEnemy: nearest,
+                            damage: damage
+                        });
+                    } else {
+                        nearest.hp -= damage;
+                        if (nearest.hp <= 0) {
+                            honeyPots += (nearest.isBus ? 500 : 50);
+                            beeReserve += (nearest.isBus ? 10 : 2);
+                            if (nearest.isBus) {
+                                for(let s = 0; s < 3; s++) {
+                                    enemies.push({
+                                        x: nearest.x + (Math.random()*30 - 15),
+                                        y: nearest.y + (Math.random()*30 - 15),
+                                        pathIndex: nearest.pathIndex,
+                                        hp: 15,
+                                        maxHp: 15,
+                                        isBus: false,
+                                        emoji: '🐛',
+                                        speed: 2.0
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        enemies = enemies.filter(en => en.hp > 0);
+        updateUI();
+    }
+
+    function drawGame() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw track
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 50;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(trackPath[0].x, trackPath[0].y);
+        for(let i = 1; i < trackPath.length; i++) {
+            ctx.lineTo(trackPath[i].x, trackPath[i].y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffff';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([15, 15]);
+        ctx.beginPath();
+        ctx.moveTo(trackPath[0].x, trackPath[0].y);
+        for(let i = 1; i < trackPath.length; i++) {
+            ctx.lineTo(trackPath[i].x, trackPath[i].y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Hive
+        let end = trackPath[trackPath.length - 1];
+        ctx.fillStyle = '#ffd700';
+        ctx.beginPath();
+        ctx.arc(end.x, end.y, 35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#000';
+        ctx.font = '12px sans-serif';
+        ctx.fillText("HIVE", end.x - 15, end.y + 4);
+
+        // Towers
+        towers.forEach(t => {
+            ctx.save();
+            ctx.translate(t.x, t.y);
+            if (t.type === 'spin' || t.type === 'gun') {
+                ctx.rotate(t.angle);
+            }
+            
+            // Colossal Big Bee is massively scaled up (radius 55)
+            let radius = (t.type === 'big') ? 55 : 16; 
+            
+            ctx.fillStyle = t.type === 'slow' ? '#00ffff' : 
+                            t.type === 'spin' ? '#ff00ff' : 
+                            t.type === 'gun' ? '#ff8800' : 
+                            t.type === 'bombus' ? '#ff4500' : 
+                            t.type === 'big' ? '#ffcc00' : '#ffff00';
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#000';
+            ctx.stroke();
+            
+            ctx.fillStyle = '#000';
+            ctx.font = (t.type === 'big') ? '45px sans-serif' : '10px sans-serif';
+            ctx.fillText(t.type === 'gun' ? '🔫' : t.type === 'big' ? '🐝' : t.type[0].toUpperCase(), t.type === 'big' ? -24 : -6, t.type === 'big' ? 14 : 4);
+            ctx.restore();
+        });
+
+        // Draw Bug Gun Projectiles
+        projectiles.forEach(p => {
+            ctx.fillStyle = '#ffcc00';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Draw Visible Colossal Big Bee Stings (🗡️)
+        bigStingProjectiles.forEach(st => {
+            ctx.save();
+            ctx.font = '28px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🗡️', st.x, st.y);
+            ctx.restore();
+        });
+
+        // Enemies
+        enemies.forEach(en => {
+            ctx.save();
+            ctx.font = en.isBus ? '28px sans-serif' : '22px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(en.emoji, en.x, en.y);
+            ctx.restore();
+
+            // HP Bar
+            ctx.fillStyle = '#f00';
+            ctx.fillRect(en.x - 18, en.y - 22, 36, 5);
+            ctx.fillStyle = '#0f0';
+            ctx.fillRect(en.x - 18, en.y - 22, (en.hp / en.maxHp) * 36, 5);
+        });
+    }
+
+    function gameLoop() {
+        updateGame();
+        drawGame();
+        requestAnimationFrame(gameLoop);
+    }
+
+    updateUI();
+    gameLoop();
+</script>
+</body>
+</html>
