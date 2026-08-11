@@ -1,13 +1,17 @@
 :root {
   --font-family: 'Fredoka', cursive, sans-serif;
-  --bg-gradient: #F8FAFC;
-  --text-color: #1E293B;
   
-  /* Mode Specific Colors matching the design */
-  --red-btn: #EF4444;
-  --orange-btn: #F97316;
-  --blue-btn: #3B82F6;
-  --green-btn: #22C55E;
+  /* Color Palette from Swatches */
+  --swatch-yellow: #FFD646;
+  --swatch-red: #FF0000;
+  --swatch-green: #23420A;
+  --swatch-brown: #9C3D04;
+  
+  /* Operation Mapping */
+  --add-color: var(--swatch-red);
+  --sub-color: var(--swatch-brown);
+  --mult-color: var(--swatch-yellow);
+  --div-color: var(--swatch-green);
 }
 
 * {
@@ -18,8 +22,8 @@
 }
 
 body {
-  background-color: #F1F5F9;
-  color: var(--text-color);
+  background-color: #FAF8F5;
+  color: #1E293B;
   padding: 20px 10px;
   min-height: 100vh;
   display: flex;
@@ -41,19 +45,20 @@ body {
 }
 
 .logo-badge {
-  background: #FACC15;
-  color: #1E293B;
+  background: var(--swatch-yellow);
+  color: #000;
+  border: 3px solid #000;
   padding: 8px 24px;
   border-radius: 30px;
   font-weight: 700;
   font-size: 1.8rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 0 #000;
   display: inline-block;
 }
 
 .tagline {
-  margin-top: 6px;
-  color: #64748B;
+  margin-top: 8px;
+  color: #475569;
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -76,7 +81,6 @@ body {
   border: 3px solid #000;
   border-radius: 12px;
   padding: 10px 4px;
-  color: white;
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
@@ -90,10 +94,26 @@ body {
   box-shadow: 0 1px 0 #000;
 }
 
-.btn-add { background-color: var(--red-btn); }
-.btn-sub { background-color: var(--orange-btn); }
-.btn-mult { background-color: var(--blue-btn); }
-.btn-div { background-color: var(--green-btn); color: #000; }
+/* Row-by-Row Color Assignments */
+.btn-add {
+  background-color: var(--add-color);
+  color: #FFFFFF;
+}
+
+.btn-sub {
+  background-color: var(--sub-color);
+  color: #FFFFFF;
+}
+
+.btn-mult {
+  background-color: var(--mult-color);
+  color: #000000;
+}
+
+.btn-div {
+  background-color: var(--div-color);
+  color: #FFFFFF;
+}
 
 /* BOARD CARD */
 .board-card {
@@ -108,7 +128,7 @@ body {
   box-shadow: 0 8px 0 #000;
 }
 
-/* COLUMN MATH BOARD */
+/* COLUMN MATH DISPLAY */
 .column-board {
   display: flex;
   flex-direction: column;
@@ -135,22 +155,22 @@ body {
   margin: 0 3px;
 }
 
-/* Place Value Header Pill */
+/* Place Value Pill Header */
 .pv-header {
-  background: #E2E8F0;
+  background: #F1F5F9;
   border: 2px solid #000;
   border-radius: 10px;
   height: 38px;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #334155;
+  color: #1E293B;
   box-shadow: 0 2px 0 #000;
 }
 
 /* Carry/Borrow Dash Box */
 .carry-box {
-  background: #FEF08A;
-  border: 2px dashed #000;
+  background: #FFFBEB;
+  border: 2px dashed var(--swatch-brown);
   border-radius: 10px;
   height: 44px;
   width: 44px;
@@ -158,6 +178,7 @@ body {
   font-weight: 700;
   text-align: center;
   outline: none;
+  color: var(--swatch-brown);
 }
 
 .operator-cell {
@@ -175,7 +196,7 @@ body {
 
 /* Answer Digit Input Box */
 .digit-input {
-  background: #DCFCE7;
+  background: #F0FDF4;
   border: 3px solid #000;
   border-radius: 12px;
   width: 52px;
@@ -185,14 +206,15 @@ body {
   text-align: center;
   outline: none;
   box-shadow: 0 3px 0 #000;
+  color: var(--swatch-green);
 }
 
 .digit-input:focus {
-  background: #BBF7D0;
-  border-color: #15803D;
+  background: var(--swatch-yellow);
+  color: #000;
 }
 
-/* ACTIONS & FEEDBACK */
+/* ACTION BUTTONS & FEEDBACK */
 .action-bar {
   display: flex;
   gap: 16px;
@@ -213,13 +235,13 @@ body {
 }
 
 .btn-check {
-  background: #22C55E;
+  background: var(--swatch-green);
   color: white;
 }
 
 .btn-next {
-  background: #3B82F6;
-  color: white;
+  background: var(--swatch-yellow);
+  color: black;
 }
 
 .btn-check:active, .btn-next:active {
@@ -234,8 +256,8 @@ body {
   margin-bottom: 12px;
 }
 
-.feedback.correct { color: #16A34A; }
-.feedback.incorrect { color: #DC2626; }
+.feedback.correct { color: var(--swatch-green); }
+.feedback.incorrect { color: var(--swatch-red); }
 
 /* SCOREBOARD */
 .score-board {
@@ -244,7 +266,7 @@ body {
 }
 
 .stat-box {
-  background: #F8FAFC;
+  background: #FFFBEB;
   border: 2px solid #000;
   padding: 8px 20px;
   border-radius: 14px;
