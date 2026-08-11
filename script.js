@@ -1,93 +1,200 @@
-// --- TAB NAVIGATION ---
-function switchTab(tabId, event) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+// Current state
+let currentOperation = 'add'; // 'add', 'sub', 'mult', 'div'
+let currentDigits = 2;        // 1 to 6
+let num1 = 0;
+let num2 = 0;
+let expectedAnswer = 0;
+let score = 0;
+let streak = 0;
 
-  document.getElementById(tabId).classList.add('active');
+// Place Value Labels
+const PLACE_VALUES = ['O', 'T', 'H', 'Th', 'TTh', 'HTh', 'M'];
+
+function selectMode(op, digits) {
+  currentOperation = op;
+  currentDigits = digits;
+
+  // Highlight active button
+  document.querySelectorAll('.grid-btn').forEach(btn => btn.classList.remove('active'));
   event.currentTarget.classList.add('active');
+
+  generateProblem();
 }
 
-function checkEnter(event, callback) {
-  if (event.key === 'Enter') callback();
-}
-
-// --- MULTIPLICATION MODULE ---
-let multState = { num1: 0, num2: 0, score: 0, streak: 0 };
-
-function startMultiplication() {
-  const tableVal = document.getElementById('table-select').value;
-  multState.num1 = tableVal === 'all' ? Math.floor(Math.random() * 12) + 1 : parseInt(tableVal);
-  multState.num2 = Math.floor(Math.random() * 12) + 1;
-
-  document.getElementById('mult-question').innerText = `${multState.num1} × ${multState.num2} = ?`;
-  document.getElementById('mult-answer').value = '';
-  document.getElementById('mult-answer').focus();
-}
-
-function checkMultiplication() {
-  const input = parseInt(document.getElementById('mult-answer').value);
-  const correct = multState.num1 * multState.num2;
-  const feedback = document.getElementById('mult-feedback');
-
-  if (input === correct) {
-    feedback.innerText = '🎉 AWESOME! CORRECT!';
-    feedback.className = 'feedback correct';
-    multState.score += 10;
-    multState.streak += 1;
-  } else {
-    feedback.innerText = `❌ Oops! The correct answer was ${correct}.`;
-    feedback.className = 'feedback incorrect';
-    multState.streak = 0;
-  }
-
-  document.getElementById('mult-score').innerText = multState.score;
-  document.getElementById('mult-streak').innerText = multState.streak;
-  startMultiplication();
-}
-
-// --- ADDITION MODULE ---
-let addState = { num1: 0, num2: 0, score: 0, streak: 0 };
-
-function generateRandomNumber(digits) {
+function getRandomNumber(digits) {
   const min = Math.pow(10, digits - 1);
   const max = Math.pow(10, digits) - 1;
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function startAddition() {
-  const digits = parseInt(document.getElementById('digit-select').value);
-  addState.num1 = generateRandomNumber(digits);
-  addState.num2 = generateRandomNumber(digits);
+function generateProblem() {
+  document.getElementById('feedback').innerText = '';
+  document.getElementById('feedback').className = 'feedback';
 
-  document.getElementById('num1').innerText = addState.num1.toLocaleString();
-  document.getElementById('num2').innerText = '+ ' + addState.num2.toLocaleString();
-  document.getElementById('add-answer').value = '';
-  document.getElementById('add-answer').focus();
-}
+  num1 = getRandomNumber(currentDigits);
+  num2 = getRandomNumber(currentDigits);
 
-function checkAddition() {
-  const input = parseInt(document.getElementById('add-answer').value);
-  const correct = addState.num1 + addState.num2;
-  const feedback = document.getElementById('add-feedback');
-
-  if (input === correct) {
-    feedback.innerText = '🌟 BRILLIANT CALCULATION!';
-    feedback.className = 'feedback correct';
-    addState.score += 15;
-    addState.streak += 1;
-  } else {
-    feedback.innerText = `❌ Not quite! The correct total was ${correct.toLocaleString()}.`;
-    feedback.className = 'feedback incorrect';
-    addState.streak = 0;
+  if (currentOperation === 'sub' && num2 > num1) {
+    // Swap so upper number is larger for subtraction
+    [num1, num2] = [num2, num1];
+  } else if (currentOperation === 'div') {
+    // Ensure clean division
+    num2 = Math.floor(Math.random() * 9) + 1; // divisor 1-9
+    let multiplier = getRandomNumber(Math.max(1, currentDigits - 1));
+    num1 = num2 * multiplier;
   }
 
-  document.getElementById('add-score').innerText = addState.score;
-  document.getElementById('add-streak').innerText = addState.streak;
-  startAddition();
+  calculateExpectedAnswer();
+  renderBoard();
 }
 
-// --- INITIALIZATION ---
+function calculateExpectedAnswer() {
+  switch (currentOperation) {
+    case 'add': expectedAnswer = num1 + num2; break;
+    case 'sub': expectedAnswer = num1 - num2; break;
+    case 'mult': expectedAnswer = num1 * num2; break;
+    case 'div': expectedAnswer = Math.floor(num1 / num2); break;
+  }
+}
+
+function renderBoard() {
+  const board = document.getElementById('column-board');
+  board.innerHTML = '';
+
+  const str1 = num1.toString();
+  const str2 = num2.toString();
+  const strAns = expectedAnswer.toString();
+
+  const totalCols = Math.max(str1.length, str2.length, strAns.length);
+
+  // 1. PLACE VALUE HEADERS ROW
+  const headerRow = document.createElement('div');
+  headerRow.className = 'column-row';
+  for (let i = totalCols - 1; i >= 0; i--) {
+    const pvCell = document.createElement('div');
+    pvCell.className = 'cell pv-header';
+    pvCell.innerText = PLACE_VALUES[i] || 'PV';
+    headerRow.appendChild(pvCell);
+  }
+  board.appendChild(headerRow);
+
+  // 2. CARRY / REGROUPING DASHED BOXES ROW
+  const carryRow = document.createElement('div');
+  carryRow.className = 'column-row';
+  for (let i = 0; i < totalCols; i++) {
+    const carryCell = document.createElement('div');
+    carryCell.className = 'cell';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 2;
+    input.className = 'carry-box';
+    carryCell.appendChild(input);
+    carryRow.appendChild(carryCell);
+  }
+  board.appendChild(carryRow);
+
+  // 3. FIRST NUMBER ROW
+  const row1 = document.createElement('div');
+  row1.className = 'column-row';
+  const paddedStr1 = str1.padStart(totalCols, ' ');
+  for (let char of paddedStr1) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.innerText = char === ' ' ? '' : char;
+    row1.appendChild(cell);
+  }
+  board.appendChild(row1);
+
+  // 4. SECOND NUMBER ROW (WITH OPERATOR)
+  const row2 = document.createElement('div');
+  row2.className = 'column-row';
+  
+  const opCell = document.createElement('div');
+  opCell.className = 'cell operator-cell';
+  const symbols = { add: '+', sub: '-', mult: '×', div: '÷' };
+  opCell.innerText = symbols[currentOperation];
+  row2.appendChild(opCell);
+
+  const paddedStr2 = str2.padStart(totalCols - 1, ' ');
+  for (let char of paddedStr2) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.innerText = char === ' ' ? '' : char;
+    row2.appendChild(cell);
+  }
+  board.appendChild(row2);
+
+  // 5. LINE DIVIDER
+  const line = document.createElement('div');
+  line.className = 'line-divider';
+  board.appendChild(line);
+
+  // 6. DIGIT INPUT BOXES ROW FOR ANSWER
+  const answerRow = document.createElement('div');
+  answerRow.className = 'column-row';
+  for (let i = 0; i < strAns.length; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'digit-input';
+    input.dataset.index = i;
+    input.onkeyup = (e) => handleDigitAutoTab(e, i, strAns.length);
+
+    cell.appendChild(input);
+    answerRow.appendChild(cell);
+  }
+  board.appendChild(answerRow);
+
+  // Focus first input box
+  setTimeout(() => {
+    const firstInput = answerRow.querySelector('.digit-input');
+    if (firstInput) firstInput.focus();
+  }, 100);
+}
+
+function handleDigitAutoTab(e, index, totalDigits) {
+  if (e.key === 'Enter') {
+    checkAnswer();
+    return;
+  }
+  // Auto advance cursor to left input box as user types from right to left
+  if (e.target.value.length === 1 && index > 0) {
+    const prevInput = document.querySelectorAll('.digit-input')[index - 1];
+    if (prevInput) prevInput.focus();
+  }
+}
+
+function checkAnswer() {
+  const inputs = document.querySelectorAll('.digit-input');
+  let userAnswerStr = '';
+
+  inputs.forEach(input => {
+    userAnswerStr += input.value.trim();
+  });
+
+  const feedback = document.getElementById('feedback');
+
+  if (userAnswerStr === expectedAnswer.toString()) {
+    feedback.innerText = '🎉 Fantastic! Correct!';
+    feedback.className = 'feedback correct';
+    score += 10;
+    streak += 1;
+  } else {
+    feedback.innerText = `❌ Oops! The correct answer was ${expectedAnswer.toLocaleString()}.`;
+    feedback.className = 'feedback incorrect';
+    streak = 0;
+  }
+
+  document.getElementById('score').innerText = score;
+  document.getElementById('streak').innerText = streak;
+}
+
+// Initial setup
 window.onload = () => {
-  startMultiplication();
-  startAddition();
+  // Activate default mode button (Addition 2-Digit)
+  const defaultBtn = document.querySelectorAll('.grid-btn.btn-add')[1];
+  if (defaultBtn) defaultBtn.classList.add('active');
+  generateProblem();
 };
