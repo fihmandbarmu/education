@@ -1,0 +1,241 @@
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --success: #10b981;
+  --error: #ef4444;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.main-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.main-header h1 {
+  font-size: 2.25rem;
+  color: var(--primary);
+}
+
+.main-header p {
+  color: var(--text-muted);
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  border: none;
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+
+.tab-btn.active, .tab-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.card {
+  background: var(--surface);
+  padding: 32px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.card h2 {
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.selector-group {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selector-group select {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+}
+
+.problem-box {
+  background: var(--bg);
+  padding: 24px;
+  border-radius: var(--radius);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.question {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.vertical-addition {
+  font-family: monospace;
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: inline-block;
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.vertical-addition hr {
+  border: 2px solid var(--text);
+  margin-top: 4px;
+}
+
+.input-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.input-group input {
+  padding: 12px;
+  font-size: 1.25rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  width: 180px;
+  text-align: center;
+}
+
+.input-group button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.input-group button:hover {
+  background: var(--primary-hover);
+}
+
+.feedback {
+  margin-top: 16px;
+  font-weight: 600;
+  min-height: 24px;
+}
+
+.feedback.correct { color: var(--success); }
+.feedback.incorrect { color: var(--error); }
+
+.score-board {
+  display: flex;
+  justify-content: space-around;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+/* READING SECTION */
+.category-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.cat-btn {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cat-btn.active, .cat-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.reader-container {
+  background: var(--bg);
+  padding: 28px;
+  border-radius: var(--radius);
+}
+
+.reader-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.meta-tag {
+  background: var(--surface);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.story-body p {
+  margin-bottom: 16px;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
