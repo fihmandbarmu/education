@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLearn Hub - Math & Reading Portal</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app-container">
+    <header class="main-header">
+      <h1>SmartLearn Hub</h1>
+      <p>Master Math Tables, Addition & Age-Adapted Reading</p>
+    </header>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('multiplication')">Multiplication (1-12)</button>
+      <button class="tab-btn" onclick="switchTab('addition')">Addition (3-6 Digits)</button>
+      <button class="tab-btn" onclick="switchTab('reading')">Reading Portal</button>
+    </nav>
+
+    <main class="content-area">
+      <!-- MULTIPLICATION TAB -->
+      <section id="multiplication" class="tab-content active">
+        <div class="card">
+          <h2>Times Tables Practice</h2>
+          <div class="selector-group">
+            <label for="table-select">Select Table:</label>
+            <select id="table-select" onchange="startMultiplication()">
+              <option value="all">Mixed (1 - 12)</option>
+              <option value="1">1 Times Table</option>
+              <option value="2">2 Times Table</option>
+              <option value="3">3 Times Table</option>
+              <option value="4">4 Times Table</option>
+              <option value="5">5 Times Table</option>
+              <option value="6">6 Times Table</option>
+              <option value="7">7 Times Table</option>
+              <option value="8">8 Times Table</option>
+              <option value="9">9 Times Table</option>
+              <option value="10">10 Times Table</option>
+              <option value="11">11 Times Table</option>
+              <option value="12">12 Times Table</option>
+            </select>
+          </div>
+
+          <div class="problem-box">
+            <div class="question" id="mult-question">7 × 8 = ?</div>
+            <div class="input-group">
+              <input type="number" id="mult-answer" placeholder="Your answer" onkeyup="checkEnter(event, checkMultiplication)" />
+              <button onclick="checkMultiplication()">Submit</button>
+            </div>
+            <div class="feedback" id="mult-feedback"></div>
+          </div>
+
+          <div class="score-board">
+            <span>Score: <strong id="mult-score">0</strong></span>
+            <span>Streak: <strong id="mult-streak">0</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADDITION TAB -->
+      <section id="addition" class="tab-content">
+        <div class="card">
+          <h2>Multi-Digit Addition</h2>
+          <div class="selector-group">
+            <label for="digit-select">Select Digits:</label>
+            <select id="digit-select" onchange="startAddition()">
+              <option value="3">3-Digit Addition</option>
+              <option value="4">4-Digit Addition</option>
+              <option value="5">5-Digit Addition</option>
+              <option value="6">6-Digit Addition</option>
+            </select>
+          </div>
+
+          <div class="problem-box">
+            <div class="vertical-addition" id="add-question">
+              <div id="num1">000</div>
+              <div id="num2">+ 000</div>
+              <hr />
+            </div>
+            <div class="input-group">
+              <input type="number" id="add-answer" placeholder="Your answer" onkeyup="checkEnter(event, checkAddition)" />
+              <button onclick="checkAddition()">Submit</button>
+            </div>
+            <div class="feedback" id="add-feedback"></div>
+          </div>
+
+          <div class="score-board">
+            <span>Score: <strong id="add-score">0</strong></span>
+            <span>Streak: <strong id="add-streak">0</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- READING TAB -->
+      <section id="reading" class="tab-content">
+        <div class="card">
+          <h2>Reading Portal</h2>
+          <p class="subtitle">Select your age group. Stories scale in complexity and length relative to age.</p>
+
+          <div class="category-buttons">
+            <button class="cat-btn active" onclick="loadStory('y1-6')">Year 1–6 (Ages 5–11)</button>
+            <button class="cat-btn" onclick="loadStory('y7-12')">Year 7–12 (Ages 11–18)</button>
+            <button class="cat-btn" onclick="loadStory('16-35')">Ages 16–35</button>
+            <button class="cat-btn" onclick="loadStory('36plus')">Ages 36+</button>
+          </div>
+
+          <article class="reader-container">
+            <div class="reader-header">
+              <h3 id="story-title">Story Title</h3>
+              <span id="story-meta" class="meta-tag">0 words</span>
+            </div>
+            <div id="story-body" class="story-body">
+              <!-- Content dynamically loaded -->
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
